@@ -1,7 +1,10 @@
 package com.example.explorer.weather.model;
 
+import android.os.Bundle;
+
 /**
  * Created by explorer on 16-3-22.
+ *
  */
 public class City {
     private String city;
@@ -57,5 +60,16 @@ public class City {
 
     public void  setProv(String prov) {
         this.prov = prov;
+    }
+
+    public Bundle getBundle() {
+        Bundle bundle = new Bundle();
+        bundle.putString("city", city);
+        bundle.putString("cnty", cnty);
+        bundle.putString("id", id);
+        bundle.putString("lat", lat);
+        bundle.putString("lon", lon);
+        bundle.putString("prov", prov);
+        return bundle;
     }
 }
