@@ -1,5 +1,6 @@
 package com.example.explorer.weather.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -43,10 +44,10 @@ public class WeatherDB {
     }
 
     /**
-    * Get the list of all citys
+     * Get the list of all citys
      **/
-    public List<City> loadCitys() {
-        if(cityList == null) {
+    public List<City> loadCities() {
+        if (cityList == null) {
             cityList = new ArrayList<>();
             Cursor cursor = db.query("City", null, null, null, null, null, null);
             if (cursor.moveToFirst()) {
@@ -61,8 +62,7 @@ public class WeatherDB {
                     cityList.add(city);
                 } while (cursor.moveToNext());
 
-            }
-            else {
+            } else {
                 return null;       //Maybe raise a error is better.Will be change in later version
             }
             cursor.close();
@@ -70,4 +70,19 @@ public class WeatherDB {
         return cityList;
     }
 
+    public void saveCities(List<City> cityList) {
+        if (cityList == null) {
+            return;
+        }
+        for (City city : cityList) {
+            ContentValues values = new ContentValues();
+            values.put("city", city.getCity());
+            values.put("cnty", city.getCity());
+            values.put("id", city.getId());
+            values.put("lat", city.getLat());
+            values.put("lon", city.getLon());
+            values.put("prov", city.getProv());
+            db.insert("City", null, values);
+        }
+    }
 }

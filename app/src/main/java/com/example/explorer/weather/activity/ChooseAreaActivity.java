@@ -16,10 +16,9 @@ import com.example.explorer.weather.model.City;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
-import static com.example.explorer.weather.util.position.Position.findCityByName;
-import static com.example.explorer.weather.util.position.Position.findSimilarCity;
+import static com.example.explorer.weather.util.position.PositionUtil.findCityByName;
+import static com.example.explorer.weather.util.position.PositionUtil.findSimilarCity;
 
 /**
  * Created by explorer on 16-3-22.
@@ -48,7 +47,7 @@ public class ChooseAreaActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String cityName = dataList.get(position);
-                City chooseCity = findCityByName(cityName);
+                City chooseCity = findCityByName(cityName, ChooseAreaActivity.this);
                 if (chooseCity != null) {
                     Intent intent = new Intent();
                     Bundle bundle = chooseCity.getBundle();
@@ -85,7 +84,7 @@ public class ChooseAreaActivity extends AppCompatActivity {
      **/
     private void showCitySuggestion() {
         String inputText = editText.getText().toString();
-        List<City> cityList =  findSimilarCity(inputText);
+        List<City> cityList =  findSimilarCity(inputText, this);
         for(City city : cityList) {
             dataList.add(city.getCity());
         }

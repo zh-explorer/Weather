@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Weather</string>
     <string name="search_city">搜索城市</string>
+    <string name="no_location">No location provider to use</string>
+    <string name="get_cities"><![CDATA[https://api.heweather.com/x3/citylist?search=allchina&key=9bcab69f01614c91a5a5c652b7999ee0]]></string>
+    <string name="load_cites_fail">Can\'t load city list</string>
+    <string name="load_location">正在加载位置数据</string>
+    <string name="load_weather">正在加载天气数据</string>
 </resources>
