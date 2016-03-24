@@ -15,12 +15,12 @@ public class WeatherOpenHelper extends SQLiteOpenHelper{
      */
 
     public static final String CREATE_CITY = "Create table City (" +
-            "id text primary key" +
-            "city text" +
-            "cnty text" +   //Country
-            "lat text" +    //latitude
-            "lon text" +    //longitude
-            "prov text";    //province
+            "id text primary key," +
+            "city text," +
+            "cnty text," +   //Country
+            "lat text," +    //latitude
+            "lon text," +    //longitude
+            "prov text)";    //province
 
     public WeatherOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);

@@ -7,11 +7,11 @@ import java.util.List;
  *
  */
 public class CityList {
-    private List<City> city;
+    private List<City> city_info;
     private String status;
 
     public List<City> getCityList() {
-        return city;
+        return city_info;
     }
 
     public boolean getStatus() {

@@ -1,15 +1,17 @@
 package com.example.explorer.weather.activity;
 
 import android.app.ProgressDialog;
-import android.graphics.Point;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
 import com.example.explorer.weather.R;
+import com.example.explorer.weather.model.City;
 import com.example.explorer.weather.util.position.Position;
+
 
 import static com.example.explorer.weather.util.position.Position.locationInit;
 import static com.example.explorer.weather.util.position.PositionUtil.checkDBData;
@@ -21,6 +23,24 @@ public class MainActivity extends AppCompatActivity {
     private TextView titleCity;
     private ProgressDialog progressDialog;
     private Position position;
+    private City city;
+
+    public static final int GET_CITY_NAME = 0 ;
+    public Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case GET_CITY_NAME:
+                    city = (City)msg.obj;
+                    updateCity();
+                default:
+                    break;
+            }
+        }
+    };
+
+    private void updateCity() {
+        titleCity.setText(city.getCity());
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

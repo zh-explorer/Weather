@@ -1,6 +1,7 @@
 package com.example.explorer.weather.util.position;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -8,26 +9,34 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.widget.Toast;
 
 import com.example.explorer.weather.R;
+import com.example.explorer.weather.activity.MainActivity;
+import com.example.explorer.weather.model.City;
+import com.example.explorer.weather.util.HttpCallbackListenter;
+import com.example.explorer.weather.util.HttpUtil;
 
 import java.util.List;
+
+import static com.example.explorer.weather.util.position.PositionUtil.findCityName;
 
 /**
  * Created by explorer on 16-3-22.
  */
 public class Position implements LocationListener {
 
-    private double latitude;
+    private String latitude;
 
-    private double longitude;
+    private String longitude;
 
     private LocationManager locationManager;
 
     private String provider;
 
     private static Position position = null;
+    private City city;
 
     private Position(final Context context) {
         new Thread(new Runnable() {
@@ -61,16 +70,65 @@ public class Position implements LocationListener {
                 Location location = locationManager.getLastKnownLocation(provider);
 
                 if (location != null) {
-                    longitude = location.getLongitude();
-                    latitude = location.getLatitude();
+                    longitude = Double.toString(location.getLongitude());
+                    latitude = Double.toString(location.getLatitude());
                 } else {
-                    longitude = -1;
-                    latitude = -1;
+                    longitude = null;
+                    latitude = null;
                 }
 
-                locationManager.requestLocationUpdates(provider, 5000, 1, Position.this);
+                ((MainActivity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                                    && context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                // TODO: Consider calling
+                                //    public void requestPermissions(@NonNull String[] permissions, int requestCode)
+                                // here to request the missing permissions, and then overriding
+                                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                //                                          int[] grantResults)
+                                // to handle the case where the user grants the permission. See the documentation
+                                // for Activity#requestPermissions for more details.
+                                return;
+                            }
+                        }
+                        locationManager.requestLocationUpdates(provider, 5000, 1, Position.this);
+                    }
+                });
+                getLocationCity(context);
+            }
+        }).start();
+    }
+
+    private void getLocationCity(final Context context) {
+        if(longitude == null&&latitude == null) {
+            return;
+        }
+        StringBuilder url = new StringBuilder();
+
+        url.append("http://maps.google.cn/maps/api/geocode/json?");
+        url.append("latlng=");
+        url.append(latitude);
+        url.append(",");
+        url.append(longitude);
+        url.append("&sensor=false");
+        HttpUtil.sendHttpRequest(url.toString(), new HttpCallbackListenter() {
+            @Override
+            public void onFinish(String response) {
+                city = findCityName(response, context);
+                Message message = new Message();
+                message.what = MainActivity.GET_CITY_NAME;
+                message.obj = city;
+                ((MainActivity)context).handler.sendMessage(message);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                e.printStackTrace();
             }
         });
+
     }
 
     public static void locationInit(Context context) {
@@ -101,18 +159,25 @@ public class Position implements LocationListener {
         }
     }
 
-    public double getLatitude() {
+    /**
+     * Get Data from position instance
+     */
+    public String getLatitude() {
         return latitude;
     }
 
-    public double getLongitude() {
+    public String getLongitude() {
         return longitude;
+    }
+
+    public City getCity() {
+        return city;
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        longitude = location.getLongitude();
-        latitude = location.getLongitude();
+        longitude = Double.toString(location.getLongitude());
+        latitude = Double.toString(location.getLatitude());
     }
 
     @Override

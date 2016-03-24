@@ -12,12 +12,16 @@ import com.example.explorer.weather.util.HttpCallbackListenter;
 import com.example.explorer.weather.util.HttpUtil;
 import com.google.gson.Gson;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 /**
  * Created by explorer on 16-3-22.
+ *
  */
 public class PositionUtil {
     public static List<City> handleCitiesResponse(String response) {
@@ -64,11 +68,14 @@ public class PositionUtil {
         return similarCity;
     }
 
+    /**
+     * Check if there are city list in database.If dou't find,query fron server;
+     */
     public static void checkDBData(final Context context) {
         final WeatherDB weatherDB = WeatherDB.getInstance(context);
         List<City> cityList = weatherDB.loadCities();
         final MainActivity activity = (MainActivity) context;
-        if (cityList.isEmpty()) {
+        if (cityList==null) {
             activity.showProgressDialog();
             String url = context.getString(R.string.get_cities);
             HttpUtil.sendHttpRequest(url, new HttpCallbackListenter() {
@@ -96,5 +103,29 @@ public class PositionUtil {
                 }
             });
         }
+    }
+
+    public static City findCityName(String response,Context context) {
+        WeatherDB weatherDB = WeatherDB.getInstance(context);
+        List<City> cityList = weatherDB.loadCities();
+        try {
+            JSONObject position = new JSONObject(response);
+            JSONArray array = position.getJSONArray("results");
+            if (array.length() > 0) {
+                JSONArray addrArray = array.getJSONObject(0).getJSONArray("address_components");
+                for (int i = 0; i < addrArray.length(); i++) {
+                    String addrString = addrArray.getJSONObject(i).getString("long_name");
+                    for (City city : cityList) {
+                        if (Pattern.matches("^"+city.getCity()+".*?",addrString)) {
+                            return city;
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
