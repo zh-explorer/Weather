@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 
 /**
  * Created by explorer on 16-3-22.
- *
  */
 public class PositionUtil {
     public static List<City> handleCitiesResponse(String response) {
@@ -52,7 +51,7 @@ public class PositionUtil {
         WeatherDB weatherDB = WeatherDB.getInstance(context);
         List<City> cityList = weatherDB.loadCities();
 
-        Pattern p = Pattern.compile("^" + cityName);
+        Pattern p = Pattern.compile("^" + cityName + ".*?");
         List<City> similarCity = new ArrayList<>();
         for (City city : cityList) {
             if (p.matcher(city.getCity()).matches()) {
@@ -75,13 +74,13 @@ public class PositionUtil {
         final WeatherDB weatherDB = WeatherDB.getInstance(context);
         List<City> cityList = weatherDB.loadCities();
         final MainActivity activity = (MainActivity) context;
-        if (cityList==null) {
+        if (cityList == null) {
             activity.showProgressDialog();
             String url = context.getString(R.string.get_cities);
             HttpUtil.sendHttpRequest(url, new HttpCallbackListenter() {
                 @Override
                 public void onFinish(String response) {
-                    List<City>getCityList = handleCitiesResponse(response);
+                    List<City> getCityList = handleCitiesResponse(response);
                     weatherDB.saveCities(getCityList);
                     activity.runOnUiThread(new Runnable() {
                         @Override
@@ -105,18 +104,22 @@ public class PositionUtil {
         }
     }
 
-    public static City findCityName(String response,Context context) {
+    public static City findCityName(String response, Context context) {
+
         WeatherDB weatherDB = WeatherDB.getInstance(context);
-        List<City> cityList = weatherDB.loadCities();
+        //List<City> cityList = weatherDB.loadCities();
         try {
             JSONObject position = new JSONObject(response);
             JSONArray array = position.getJSONArray("results");
             if (array.length() > 0) {
                 JSONArray addrArray = array.getJSONObject(0).getJSONArray("address_components");
+                //to improve validity of city find,find prov first
+                String prov = getProvName(addrArray);
+                List<City> cityList = weatherDB.loadCities(prov);
                 for (int i = 0; i < addrArray.length(); i++) {
                     String addrString = addrArray.getJSONObject(i).getString("long_name");
                     for (City city : cityList) {
-                        if (Pattern.matches("^"+city.getCity()+".*?",addrString)) {
+                        if (Pattern.matches("^" + city.getCity() + ".*?", addrString)) {
                             return city;
                         }
                     }
@@ -128,4 +131,21 @@ public class PositionUtil {
         }
         return null;
     }
+
+    private static String getProvName(JSONArray addrArray) {
+        try {
+            for (int i = 0; i < addrArray.length(); i++) {
+                JSONArray types = addrArray.getJSONObject(i).getJSONArray("types");
+                for (int j = 0; j < types.length(); j++) {
+                    if (types.getString(j).equals("administrative_area_level_1")) {
+                        return addrArray.getJSONObject(i).getString("long_name");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

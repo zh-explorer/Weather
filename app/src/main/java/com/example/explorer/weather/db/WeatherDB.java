@@ -9,6 +9,7 @@ import com.example.explorer.weather.model.City;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Created by explorer on 16-3-22.
@@ -66,6 +67,20 @@ public class WeatherDB {
                 return null;       //Maybe raise a error is better.Will be change in later version
             }
             cursor.close();
+        }
+        return cityList;
+    }
+
+    /**
+     * Get the list of citys whit prov
+     **/
+    public List<City> loadCities(String prov) {
+        List<City>allCityList =  loadCities();
+        List<City>cityList = new ArrayList<>();
+        for(City city: allCityList) {
+            if(Pattern.matches("^"+city.getProv()+".*?",prov)) {
+                cityList.add(city);
+            }
         }
         return cityList;
     }

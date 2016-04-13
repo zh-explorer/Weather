@@ -1,7 +1,6 @@
 package com.example.explorer.weather.util.position;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -36,9 +35,13 @@ public class Position implements LocationListener {
     private String provider;
 
     private static Position position = null;
+
+    private Context context;
+
     private City city;
 
     private Position(final Context context) {
+        this.context = context;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -120,7 +123,7 @@ public class Position implements LocationListener {
                 Message message = new Message();
                 message.what = MainActivity.GET_CITY_NAME;
                 message.obj = city;
-                ((MainActivity)context).handler.sendMessage(message);
+                ((MainActivity) context).handler.sendMessage(message);
             }
 
             @Override
@@ -174,10 +177,16 @@ public class Position implements LocationListener {
         return city;
     }
 
+    public void setCity(City city) {
+        this.city = city;
+        removeLister(context);
+    }
+
     @Override
     public void onLocationChanged(Location location) {
         longitude = Double.toString(location.getLongitude());
         latitude = Double.toString(location.getLatitude());
+        getLocationCity(context);
     }
 
     @Override
@@ -194,4 +203,5 @@ public class Position implements LocationListener {
     public void onProviderDisabled(String provider) {
 
     }
+
 }

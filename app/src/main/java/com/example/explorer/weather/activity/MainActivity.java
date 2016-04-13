@@ -1,6 +1,7 @@
 package com.example.explorer.weather.activity;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
 import com.example.explorer.weather.R;
 import com.example.explorer.weather.model.City;
 import com.example.explorer.weather.util.position.Position;
@@ -25,12 +27,12 @@ public class MainActivity extends AppCompatActivity {
     private Position position;
     private City city;
 
-    public static final int GET_CITY_NAME = 0 ;
+    public static final int GET_CITY_NAME = 0;
     public Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case GET_CITY_NAME:
-                    city = (City)msg.obj;
+                    city = (City) msg.obj;
                     updateCity();
                 default:
                     break;
@@ -39,7 +41,11 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void updateCity() {
-        titleCity.setText(city.getCity());
+        if (city != null) {
+            titleCity.setText(city.getCity());
+        } else {
+            titleCity.setText("city not found");
+        }
     }
 
     @Override
@@ -54,7 +60,8 @@ public class MainActivity extends AppCompatActivity {
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(MainActivity.this, ChooseAreaActivity.class);
+                startActivityForResult(intent, 1);
             }
         });
         checkDBData(this);
@@ -63,8 +70,21 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case 1:
+                if (resultCode == RESULT_OK) {
+                    Bundle bundle = data.getBundleExtra("return_city");
+                    city = new City(bundle);
+                    updateCity();
+                    position.setCity(city);
+                }
+        }
+    }
+
     public void showProgressDialog() {
-        if(progressDialog == null) {
+        if (progressDialog == null) {
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage("正在加载");
             progressDialog.setCanceledOnTouchOutside(false);
@@ -73,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void closeProgressDialog() {
-        if(progressDialog != null) {
+        if (progressDialog != null) {
             progressDialog.dismiss();
         }
     }

@@ -14,6 +14,24 @@ public class City {
     private String lon;
     private String prov;
 
+    public City(Bundle bundle) {
+        city = bundle.getString("city");
+        cnty = bundle.getString("cnty");
+        id = bundle.getString("id");
+        lat = bundle.getString("lat");
+        lon = bundle.getString("lon");
+        prov = bundle.getString("prov");
+    }
+
+    public City() {
+        city = null;
+        cnty = null;
+        id = null;
+        lat = null;
+        lon = null;
+        prov = null;
+    }
+
     public String getCity() {
         return city;
     }

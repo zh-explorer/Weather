@@ -49,8 +49,9 @@ public class ChooseAreaActivity extends AppCompatActivity {
                 String cityName = dataList.get(position);
                 City chooseCity = findCityByName(cityName, ChooseAreaActivity.this);
                 if (chooseCity != null) {
-                    Intent intent = new Intent();
                     Bundle bundle = chooseCity.getBundle();
+                    Intent intent = new Intent();
+                    intent.putExtra("return_city", bundle);
                     setResult(RESULT_OK, intent);
                     finish();
                 }
@@ -84,7 +85,12 @@ public class ChooseAreaActivity extends AppCompatActivity {
      **/
     private void showCitySuggestion() {
         String inputText = editText.getText().toString();
+        dataList.clear();
+        if (inputText.equals("")) {
+            return;
+        }
         List<City> cityList =  findSimilarCity(inputText, this);
+
         for(City city : cityList) {
             dataList.add(city.getCity());
         }
