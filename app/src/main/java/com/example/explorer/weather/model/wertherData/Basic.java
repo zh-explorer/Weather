@@ -9,5 +9,5 @@ public class Basic {
     public String id;
     public String lat;
     public String lon;
-    public Updata updata;
+    public Updata update;
 }

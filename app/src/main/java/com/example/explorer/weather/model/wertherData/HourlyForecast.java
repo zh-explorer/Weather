@@ -3,8 +3,8 @@ package com.example.explorer.weather.model.wertherData;
 /**
  * Created by explorer on 16-4-13.
  */
-public class hourlyForecast {
-    public String data;
+public class HourlyForecast {
+    public String date;
     public String hum;      //humidity
     public String pop;      //precipitation probability
     public String pres;     //pressure

@@ -12,11 +12,13 @@ import android.widget.TextView;
 
 import com.example.explorer.weather.R;
 import com.example.explorer.weather.model.City;
+import com.example.explorer.weather.model.wertherData.WeatherData;
 import com.example.explorer.weather.util.position.Position;
 
 
 import static com.example.explorer.weather.util.position.Position.locationInit;
 import static com.example.explorer.weather.util.position.PositionUtil.checkDBData;
+import static com.example.explorer.weather.util.weather.Weather.getWeather;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,14 +28,20 @@ public class MainActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private Position position;
     private City city;
+    private WeatherData weatherData;
 
     public static final int GET_CITY_NAME = 0;
+    public static final int GET_WEATHER = 1;
+
     public Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case GET_CITY_NAME:
                     city = (City) msg.obj;
                     updateCity();
+                    break;
+                case GET_WEATHER:
+                    weatherData = (WeatherData)msg.obj;
                 default:
                     break;
             }
@@ -43,10 +51,16 @@ public class MainActivity extends AppCompatActivity {
     private void updateCity() {
         if (city != null) {
             titleCity.setText(city.getCity());
+            getWeather(city, this);
+            updateWeather();
         } else {
             titleCity.setText("city not found");
         }
     }
+
+    private void updateWeather() {
+        return;
+        }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -3,10 +3,10 @@ package com.example.explorer.weather.model.wertherData;
 /**
  * Created by explorer on 16-4-13.
  */
-public class dailyForecast {
+public class DailyForecast {
     public Astro astro;     //time of sunrise and sun set
-    public dCond cond;
-    public String data;
+    public DCond cond;
+    public String date;
     public String hum;      //humidity
     public String pcpn;     //precipitation
     public String pop;      //precipitation probability

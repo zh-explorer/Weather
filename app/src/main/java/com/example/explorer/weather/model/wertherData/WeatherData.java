@@ -1,5 +1,11 @@
 package com.example.explorer.weather.model.wertherData;
 
+import com.example.explorer.weather.db.WeatherDB;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
 
 /**
@@ -7,14 +13,26 @@ import java.util.List;
  *
  */
 
-public class weatherData {
+public class WeatherData {
     public Aqi aqi;
     public Basic basic;
-    public List<dailyForecast> daily_forecast;
-    public List<hourlyForecast> hourly_forecast;
+    public List<DailyForecast> daily_forecast;
+    public List<HourlyForecast> hourly_forecast;
     public Now now;
     public String status;
     public Suggestions suggestion;
+
+    public static WeatherData getFromJson(String json) {
+        try {
+            JSONObject top = new JSONObject(json);
+            JSONObject weather = top.getJSONArray("HeWeather data service 3.0").getJSONObject(0);
+            Gson gson = new Gson();
+            return gson.fromJson(weather.toString(),WeatherData.class);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
 
 /*

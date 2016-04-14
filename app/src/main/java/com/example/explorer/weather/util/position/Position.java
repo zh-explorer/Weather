@@ -53,7 +53,12 @@ public class Position implements LocationListener {
                 } else if (providerList.contains(LocationManager.NETWORK_PROVIDER)) {
                     provider = LocationManager.NETWORK_PROVIDER;
                 } else {
-                    Toast.makeText(context, R.string.no_location, Toast.LENGTH_LONG).show();
+                    ((MainActivity)context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, R.string.no_location, Toast.LENGTH_LONG).show();
+                        }
+                    });
                     return;
                 }
 
