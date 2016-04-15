@@ -12,6 +12,7 @@ import static com.example.explorer.weather.util.HttpUtil.sendHttpRequest;
 
 /**
  * Created by explorer on 16-4-14.
+ *
  */
 public class Weather {
     public static void getWeather(City city, final Context context) {
@@ -25,7 +26,10 @@ public class Weather {
 
             @Override
             public void onFinish(String response) {
-                WeatherData weatherData =  WeatherData.getFromJson(response);
+                WeatherData weatherData =  WeatherData.handleWeatherResponse(response);
+                if(weatherData==null || !weatherData.status.equals("ok")){
+                    return;
+                }
                 Message msg = new Message();
                 msg.what = MainActivity.GET_WEATHER;
                 msg.obj = weatherData;

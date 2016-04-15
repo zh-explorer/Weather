@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.example.explorer.weather.model.City;
+import com.example.explorer.weather.model.cond.CondType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,8 @@ public class WeatherDB {
     public static final int VERSION = 1;
 
     private List<City> cityList;
+
+    private List<CondType> condList;
 
     private static WeatherDB weatherDB;
 
@@ -64,6 +67,8 @@ public class WeatherDB {
                 } while (cursor.moveToNext());
 
             } else {
+                cursor.close();
+                cityList = null;
                 return null;       //Maybe raise a error is better.Will be change in later version
             }
             cursor.close();
@@ -75,10 +80,10 @@ public class WeatherDB {
      * Get the list of citys whit prov
      **/
     public List<City> loadCities(String prov) {
-        List<City>allCityList =  loadCities();
-        List<City>cityList = new ArrayList<>();
-        for(City city: allCityList) {
-            if(Pattern.matches("^"+city.getProv()+".*?",prov)) {
+        List<City> allCityList = loadCities();
+        List<City> cityList = new ArrayList<>();
+        for (City city : allCityList) {
+            if (Pattern.matches("^" + city.getProv() + ".*?", prov)) {
                 cityList.add(city);
             }
         }
@@ -98,6 +103,45 @@ public class WeatherDB {
             values.put("lon", city.getLon());
             values.put("prov", city.getProv());
             db.insert("City", null, values);
+        }
+    }
+
+    public List<CondType> loadConds() {
+        if (condList == null) {
+            condList = new ArrayList<>();
+            Cursor cursor = db.query("Cond", null, null, null, null, null, null);
+            if (cursor.moveToFirst()) {
+                do {
+                    CondType condType = new CondType();
+                    condType.setCode(cursor.getString(cursor.getColumnIndex("code")));
+                    condType.setTxt(cursor.getString(cursor.getColumnIndex("txt")));
+                    condType.setTxt_en(cursor.getString(cursor.getColumnIndex("txt_en")));
+                    condType.setIcon(cursor.getString(cursor.getColumnIndex("icon")));
+                    condList.add(condType);
+                } while (cursor.moveToNext());
+
+            } else {
+                cursor.close();
+                condList = null;
+                return null;
+            }
+            cursor.close();
+
+        }
+        return condList;
+    }
+
+    public void saveConds(List<CondType> condList) {
+        if (condList == null) {
+            return;
+        }
+        for (CondType condType : condList) {
+            ContentValues values = new ContentValues();
+            values.put("code", condType.getCode());
+            values.put("txt", condType.getTxt());
+            values.put("txt_en", condType.getTxt_en());
+            values.put("icon", condType.getIcon());
+            db.insert("Cond",null,values);
         }
     }
 }

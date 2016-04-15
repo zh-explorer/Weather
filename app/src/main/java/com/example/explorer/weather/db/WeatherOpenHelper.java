@@ -22,6 +22,12 @@ public class WeatherOpenHelper extends SQLiteOpenHelper{
             "lon text," +    //longitude
             "prov text)";    //province
 
+    public static final String CREATE_COND = "Create table Cond (" +
+            "id text primary key," +
+            "code text," +
+            "txt text," +
+            "txt_en text," +
+            "icon text)";
     public WeatherOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
@@ -29,6 +35,7 @@ public class WeatherOpenHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_CITY);
+        db.execSQL(CREATE_COND);
     }
 
     @Override

@@ -8,9 +8,10 @@ import com.example.explorer.weather.activity.MainActivity;
 import com.example.explorer.weather.db.WeatherDB;
 import com.example.explorer.weather.model.City;
 import com.example.explorer.weather.model.CityList;
+import com.example.explorer.weather.model.cond.CondList;
+import com.example.explorer.weather.model.cond.CondType;
 import com.example.explorer.weather.util.HttpCallbackListenter;
 import com.example.explorer.weather.util.HttpUtil;
-import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,15 +24,6 @@ import java.util.regex.Pattern;
  * Created by explorer on 16-3-22.
  */
 public class PositionUtil {
-    public static List<City> handleCitiesResponse(String response) {
-        Gson gson = new Gson();
-        CityList cityList = gson.fromJson(response, CityList.class);
-        if (cityList.getStatus()) {
-            return cityList.getCityList();
-        } else {
-            return null;    //raise a error will be better.Change it in later version
-        }
-    }
 
     public static City findCityByName(String cityName, Context context) {
         WeatherDB weatherDB = WeatherDB.getInstance(context);      //maybe cause some problem
@@ -72,20 +64,29 @@ public class PositionUtil {
      */
     public static void checkDBData(final Context context) {
         final WeatherDB weatherDB = WeatherDB.getInstance(context);
-        List<City> cityList = weatherDB.loadCities();
+        final int[] dialogCount = {0};
         final MainActivity activity = (MainActivity) context;
+
+        List<City> cityList = weatherDB.loadCities();
         if (cityList == null) {
-            activity.showProgressDialog();
+            if (dialogCount[0] == 0) {
+                activity.showProgressDialog();
+            }
+            dialogCount[0] += 1;
             String url = context.getString(R.string.get_cities);
             HttpUtil.sendHttpRequest(url, new HttpCallbackListenter() {
                 @Override
                 public void onFinish(String response) {
-                    List<City> getCityList = handleCitiesResponse(response);
+                    List<City> getCityList = CityList.handleCitiesResponse(response);
                     weatherDB.saveCities(getCityList);
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            activity.closeProgressDialog();
+                            dialogCount[0] -= 1;
+                            if (dialogCount[0] == 0) {
+                                activity.closeProgressDialog();
+                            }
+
                         }
                     });
                 }
@@ -95,8 +96,49 @@ public class PositionUtil {
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            activity.closeProgressDialog();
+                            if (dialogCount[0] == 0) {
+                                activity.closeProgressDialog();
+                            }
                             Toast.makeText(activity, R.string.load_cites_fail, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+        }
+
+        List<CondType> condList = weatherDB.loadConds();
+        if (condList == null) {
+            if (dialogCount[0] == 0) {
+                activity.showProgressDialog();
+            }
+            dialogCount[0] += 1;
+            String url = activity.getString(R.string.get_conds);
+            HttpUtil.sendHttpRequest(url, new HttpCallbackListenter() {
+                @Override
+                public void onFinish(String response) {
+                    List<CondType> getCondList = CondList.handleCondResponse(response);
+                    weatherDB.saveConds(getCondList);
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialogCount[0] -= 1;
+                            if (dialogCount[0] == 0) {
+                                activity.closeProgressDialog();
+                            }
+
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (dialogCount[0] == 0) {
+                                activity.closeProgressDialog();
+                            }
+                            Toast.makeText(activity, R.string.load_cond_fail, Toast.LENGTH_SHORT).show();
                         }
                     });
                 }

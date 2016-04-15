@@ -1,6 +1,7 @@
 package com.example.explorer.weather.model.wertherData;
 
 import com.example.explorer.weather.db.WeatherDB;
+import com.example.explorer.weather.util.weather.Weather;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
@@ -22,17 +23,28 @@ public class WeatherData {
     public String status;
     public Suggestions suggestion;
 
-    public static WeatherData getFromJson(String json) {
+    public static WeatherData handleWeatherResponse(String json) {
         try {
             JSONObject top = new JSONObject(json);
             JSONObject weather = top.getJSONArray("HeWeather data service 3.0").getJSONObject(0);
             Gson gson = new Gson();
-            return gson.fromJson(weather.toString(),WeatherData.class);
+            WeatherData weatherData =  gson.fromJson(weather.toString(),WeatherData.class);
+            if(weatherData.getStatus()){
+                return weatherData;
+            }else {
+                return null;
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    private boolean getStatus() {
+        return status.equals("ok");
+    }
+
+
 }
 
 /*

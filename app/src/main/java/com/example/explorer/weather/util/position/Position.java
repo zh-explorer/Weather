@@ -23,6 +23,7 @@ import static com.example.explorer.weather.util.position.PositionUtil.findCityNa
 
 /**
  * Created by explorer on 16-3-22.
+ *
  */
 public class Position implements LocationListener {
 
