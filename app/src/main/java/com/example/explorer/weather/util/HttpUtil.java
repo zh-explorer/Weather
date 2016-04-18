@@ -1,6 +1,8 @@
 package com.example.explorer.weather.util;
 
 
+import com.example.explorer.weather.util.position.Position;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -9,8 +11,8 @@ import java.net.URL;
 
 public class HttpUtil {
 
-
     public static void sendHttpRequest(final String address, final HttpCallbackListenter listenter) {
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -21,7 +23,6 @@ public class HttpUtil {
                     connection.setRequestMethod("GET");
                     connection.setConnectTimeout(8000);
                     connection.setReadTimeout(8000);
-
 
 
                     InputStream in = connection.getInputStream();
@@ -39,6 +40,36 @@ public class HttpUtil {
                 } catch (Exception e) {
                     if (listenter != null) {
                         listenter.onError(e);
+                    }
+                } finally {
+                    if (connection != null) {
+                        connection.disconnect();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    public static void sendHttpRequest(final String address, final HttpCallBackListenterHex listenterHex) {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpURLConnection connection = null;
+                try {
+                    URL url = new URL(address);
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("GET");
+                    connection.setConnectTimeout(8000);
+                    connection.setReadTimeout(8000);
+
+                    InputStream in = connection.getInputStream();
+                    if (listenterHex != null) {
+                        listenterHex.onFinish(in);
+                    }
+                } catch (Exception e) {
+                    if (listenterHex != null) {
+                        listenterHex.onError(e);
                     }
                 } finally {
                     if (connection != null) {

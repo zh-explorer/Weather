@@ -105,7 +105,7 @@ public class Position implements LocationListener {
                         locationManager.requestLocationUpdates(provider, 5000, 1, Position.this);
                     }
                 });
-                getLocationCity(context);
+                //getLocationCity(context);
             }
         }).start();
     }
